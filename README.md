@@ -1,5 +1,6 @@
-# juice-test
-Test task
+# Yuriy Pavlov. Test task
+
+Deploing Juice-shop
 
 ### Development Toolchain
 Component | Software | Version | Notes
