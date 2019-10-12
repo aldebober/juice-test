@@ -1,0 +1,9 @@
+---
+galaxy_info:
+  author: Yuriy Pavlov
+  description: Installing and configuring k8s resources
+  company: AS
+  min_ansible_version: 2.4
+  categories:
+    - kubernetes
+dependencies: []

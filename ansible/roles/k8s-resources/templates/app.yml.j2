@@ -1,0 +1,47 @@
+---
+# kubectl run juice-shop --image=bkimminich/juice-shop:latest --port=3000 --labels='app=juice' --limits='cpu=200m,memory=256Mi' --generator=deployment/apps.v1beta1 --dry-run -o yaml
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: {{ app_name }}
+  name: juice-shop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: juice
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: {{ app_name }}
+    spec:
+      containers:
+      - image: bkimminich/juice-shop:latest
+        name: juice-shop
+        ports:
+        - containerPort: 3000
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: {{ app_name }}
+  name: {{ service_name }}
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 3000
+  selector:
+    app: {{ app_name }}

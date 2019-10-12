@@ -1,0 +1,33 @@
+---
+
+- name: "Deploy Dashboard"
+  command: |-
+    /usr/local/bin/kubectl \
+      apply -f "{{ kube_dashboard_url }}"
+
+- name: "Install nginx-ingress"
+  include_tasks: "nginx-ingress.yml"
+
+- name: "Copy apps file"
+  template:
+    src: templates/app.yml.j2
+    dest: /tmp/app.yml
+    validate: "python -c 'import yaml,sys;yaml.safe_load(sys.stdin)' < %s"
+
+- name: "Deploy our lovely app"
+  command: |-
+    /usr/local/bin/kubectl \
+      apply -f /tmp/app.yml
+  changed_when: false
+
+- name: "Copy dashboard ingress rule file"
+  template:
+    src: "templates/ingress.yml.j2"
+    dest: "/tmp/ingress.yml"
+    validate: "python -c 'import yaml,sys;yaml.safe_load(sys.stdin)' < %s"
+
+- name: "Create ingress rule"
+  command: |-
+    /usr/local/bin/kubectl \
+      apply -f "/tmp/ingress.yml"
+  changed_when: false

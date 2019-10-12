@@ -7,3 +7,12 @@
 
 # .tfvars files
 *.tfvars
+
+# private data
+files/*.pem
+files/*.key
+
+# kops config
+cluster.yml
+
+

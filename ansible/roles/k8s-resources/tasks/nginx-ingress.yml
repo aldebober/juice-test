@@ -1,0 +1,45 @@
+---
+
+- name: "Add helm akomljen-charts"
+  command: |-
+    /usr/local/bin/helm repo \
+      add akomljen-charts https://raw.githubusercontent.com/komljen/helm-charts/master/charts/
+
+- name: "Check ingress helm"
+  command: |-
+    /usr/local/bin/helm status alb
+  ignore_errors: yes
+  run_once: true
+  changed_when: false
+  register: nginx_ingress_helm_exists
+  failed_when: "nginx_ingress_helm_exists.rc == 2"
+
+# Using Env is wrong, need to switch to kube2iam
+- name: "Deploy ALB ingress"
+  command: |-
+    /usr/local/bin/helm install --name=alb \
+      --namespace kube-system \
+      --set-string autoDiscoverAwsRegion=true \
+      --set-string autoDiscoverAwsVpcID=true \
+      --set clusterName=test.ypavlov.com \
+      --set extraEnv.AWS_ACCESS_KEY_ID="{{ alb_ingress_key }}" \
+      --set extraEnv.AWS_SECRET_ACCESS_KEY="{{ alb_ingress_secret }}" \
+      akomljen-charts/alb-ingress
+  delay: "{{ retry_stagger | random + 3 }}"
+  run_once: true
+  when: "'Error: getting deployed' in nginx_ingress_helm_exists.stderr"
+
+- name: "Upgrade nginx-ingress controller"
+  command: |-
+    /usr/local/bin/helm upgrade alb akomljen-charts/alb-ingress \
+      --namespace kube-system \
+      --set-string autoDiscoverAwsRegion=true \
+      --set-string autoDiscoverAwsVpcID=true \
+      --set clusterName=test.ypavlov.com \
+      --set extraEnv.AWS_ACCESS_KEY_ID="{{ alb_ingress_key }}" \
+      --set extraEnv.AWS_SECRET_ACCESS_KEY="{{ alb_ingress_secret }}" \
+  delay: "{{ retry_stagger | random + 3 }}"
+  run_once: true
+  when: nginx_ingress_helm_exists.stdout.find('DEPLOYED') != -1
+  changed_when: false
+
