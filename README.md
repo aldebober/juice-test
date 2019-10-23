@@ -1,6 +1,4 @@
-# Yuriy Pavlov. Test task
-
-# Current configured alb is here: https://c12b6a5f-default-juiceingr-e3e4-1197558488.us-east-1.elb.amazonaws.com/
+# Veriff Test task for DevOps
 
 Deploing Juice-shop
 
